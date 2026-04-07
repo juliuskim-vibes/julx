@@ -1,0 +1,1785 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NEMSU R&D Document Management System</title>
+<link rel="icon" type="image/svg+xml" href="nemsu_rd_logo.svg">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<style>
+:root {
+  --bg: #F5F4F0;
+  --surface: #FFFFFF;
+  --surface2: #F0EEE8;
+  --border: #E2DDD5;
+  --border2: #CCC8BE;
+  --text: #1A1915;
+  --text2: #6B6760;
+  --text3: #9B9890;
+  --blue: #1B4FD8;
+  --blue-light: #EBF0FD;
+  --blue-mid: #B8C9F8;
+  --green: #166534;
+  --green-light: #DCFCE7;
+  --amber: #92400E;
+  --amber-light: #FEF3C7;
+  --red: #991B1B;
+  --red-light: #FEE2E2;
+  --purple: #5B21B6;
+  --purple-light: #EDE9FE;
+  --teal: #0F766E;
+  --teal-light: #CCFBF1;
+  --rose: #9F1239;
+  --rose-light: #FFE4E6;
+  --radius: 10px;
+  --radius-sm: 6px;
+  --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.10), 0 2px 4px rgba(0,0,0,0.06);
+}
+
+body.dark-mode {
+  --bg: #0F1117;
+  --surface: #1A1D27;
+  --surface2: #22263A;
+  --border: #2E3347;
+  --border2: #3D4460;
+  --text: #E8EAF0;
+  --text2: #9BA3C0;
+  --text3: #5C6480;
+  --blue: #4F7BFF;
+  --blue-light: #1A2550;
+  --blue-mid: #2A3A6B;
+  --green: #34D399;
+  --green-light: #0D2E22;
+  --amber: #FBBF24;
+  --amber-light: #2D1F00;
+  --red: #F87171;
+  --red-light: #2D0F0F;
+  --purple: #A78BFA;
+  --purple-light: #1E1640;
+  --teal: #2DD4BF;
+  --teal-light: #0D2420;
+  --rose: #FB7185;
+  --rose-light: #2D0F18;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.5;
+  min-height: 100vh;
+}
+
+/* ── LOGIN ── */
+#login-screen {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg);
+  padding: 20px;
+}
+
+.login-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 40px 36px;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: var(--shadow-md);
+}
+
+.login-logo {
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+.login-logo-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  background: var(--blue);
+  border-radius: 14px;
+  margin-bottom: 12px;
+}
+
+.login-logo-badge svg { width: 26px; height: 26px; stroke: white; fill: none; stroke-width: 1.8; }
+.login-title { font-size: 18px; font-weight: 600; color: var(--text); }
+.login-sub { font-size: 12px; color: var(--text2); margin-top: 3px; }
+
+.form-group { margin-bottom: 16px; }
+.form-label { display: block; font-size: 12px; font-weight: 500; color: var(--text2); margin-bottom: 6px; }
+
+.form-input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.form-input:focus { border-color: var(--blue); }
+
+.api-input {
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+}
+
+.btn-login {
+  width: 100%;
+  padding: 11px;
+  background: var(--blue);
+  color: white;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s;
+  margin-top: 4px;
+}
+
+.btn-login:hover { background: #1640B0; }
+
+.login-error {
+  background: var(--red-light);
+  color: var(--red);
+  border-radius: var(--radius-sm);
+  padding: 8px 12px;
+  font-size: 12px;
+  margin-top: 10px;
+  display: none;
+}
+
+.login-hint {
+  text-align: center;
+  font-size: 11px;
+  color: var(--text3);
+  margin-top: 16px;
+}
+
+/* ── APP LAYOUT ── */
+#app { display: none; height: 100vh; overflow: hidden; }
+
+.layout { display: flex; height: 100vh; }
+
+/* ── SIDEBAR ── */
+.sidebar {
+  width: 232px;
+  min-width: 232px;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.sidebar-head {
+  padding: 18px 16px 14px;
+  border-bottom: 1px solid var(--border);
+}
+
+.sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.brand-icon {
+  width: 34px;
+  height: 34px;
+  background: var(--blue);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.brand-icon svg { width: 16px; height: 16px; stroke: white; fill: none; stroke-width: 1.8; }
+.brand-name { font-size: 13px; font-weight: 600; color: var(--text); line-height: 1.2; }
+.brand-sub { font-size: 10px; color: var(--text3); }
+
+.sidebar-nav { flex: 1; overflow-y: auto; padding: 10px 8px; }
+.nav-section-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  padding: 10px 8px 5px;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 7px 8px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--text2);
+  margin-bottom: 1px;
+  transition: all 0.12s;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.nav-item:hover { background: var(--surface2); color: var(--text); }
+.nav-item.active { background: var(--blue-light); color: var(--blue); font-weight: 500; }
+.nav-dot { width: 8px; height: 8px; border-radius: 2px; flex-shrink: 0; }
+
+.sidebar-footer {
+  padding: 12px 16px;
+  border-top: 1px solid var(--border);
+}
+
+.user-row {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.user-avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--blue-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--blue);
+  flex-shrink: 0;
+}
+
+.user-name { font-size: 12px; font-weight: 500; color: var(--text); }
+.user-role { font-size: 10px; color: var(--text3); }
+
+.btn-logout {
+  margin-left: auto;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text3);
+  padding: 4px;
+  border-radius: 4px;
+}
+
+.btn-logout:hover { color: var(--red); background: var(--red-light); }
+.btn-logout svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 1.8; display: block; }
+
+/* ── MAIN ── */
+.main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+.topbar {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 14px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+
+.topbar-title { font-size: 16px; font-weight: 600; color: var(--text); }
+.topbar-sub { font-size: 12px; color: var(--text2); margin-top: 1px; }
+
+.btn-upload {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 16px;
+  background: var(--blue);
+  color: white;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.btn-upload:hover { background: #1640B0; }
+.btn-upload svg { width: 15px; height: 15px; stroke: white; fill: none; stroke-width: 2; }
+
+.content { flex: 1; overflow-y: auto; padding: 24px; }
+
+/* ── STATS ── */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+}
+
+.stat-label { font-size: 11px; color: var(--text2); margin-bottom: 6px; font-weight: 500; }
+.stat-val { font-size: 26px; font-weight: 600; color: var(--text); line-height: 1; }
+.stat-sub { font-size: 11px; color: var(--text3); margin-top: 4px; }
+
+/* ── PANELS ── */
+.panels { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px;
+}
+
+.panel-title { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 14px; }
+
+/* ── UPLOAD ── */
+.upload-zone {
+  border: 2px dashed var(--border2);
+  border-radius: var(--radius);
+  padding: 32px 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.15s;
+  position: relative;
+}
+
+.upload-zone:hover, .upload-zone.dragover {
+  border-color: var(--blue);
+  background: var(--blue-light);
+}
+
+.upload-zone input[type=file] {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+  width: 100%;
+  height: 100%;
+}
+
+.upload-icon-wrap {
+  width: 44px;
+  height: 44px;
+  background: var(--blue-light);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 12px;
+}
+
+.upload-icon-wrap svg { width: 20px; height: 20px; stroke: var(--blue); fill: none; stroke-width: 1.8; }
+.upload-text { font-size: 13px; font-weight: 500; color: var(--text); margin-bottom: 4px; }
+.upload-sub { font-size: 11px; color: var(--text2); }
+
+/* ── AI PREVIEW ── */
+.ai-preview-box {
+  background: var(--blue-light);
+  border: 1px solid var(--blue-mid);
+  border-radius: var(--radius);
+  padding: 14px;
+  margin-top: 14px;
+  display: none;
+}
+
+.ai-header {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--blue);
+  margin-bottom: 12px;
+}
+
+.ai-header svg { width: 13px; height: 13px; stroke: var(--blue); fill: none; stroke-width: 2; }
+
+.ai-field { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; gap: 10px; }
+.ai-key { font-size: 11px; color: #1640B0; flex-shrink: 0; }
+.ai-val { font-size: 12px; font-weight: 500; color: #0D2D6B; text-align: right; }
+
+.badge {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 99px;
+}
+
+.badge-blue { background: var(--blue-light); color: var(--blue); border: 1px solid var(--blue-mid); }
+.badge-green { background: var(--green-light); color: var(--green); }
+.badge-amber { background: var(--amber-light); color: var(--amber); }
+.badge-purple { background: var(--purple-light); color: var(--purple); }
+.badge-teal { background: var(--teal-light); color: var(--teal); }
+.badge-rose { background: var(--rose-light); color: var(--rose); }
+.badge-red { background: var(--red-light); color: var(--red); }
+
+.ai-actions { display: flex; gap: 8px; margin-top: 12px; }
+
+.btn-confirm {
+  flex: 1;
+  padding: 9px;
+  background: var(--blue);
+  color: white;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.btn-confirm:hover { background: #1640B0; }
+.btn-confirm:disabled { background: var(--border2); cursor: not-allowed; }
+
+.btn-edit {
+  padding: 9px 14px;
+  background: white;
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.btn-edit:hover { background: var(--surface2); }
+
+/* ── RECENT UPLOADS ── */
+.recent-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.recent-item:last-child { border-bottom: none; }
+
+.file-badge {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  font-weight: 700;
+  font-family: 'DM Mono', monospace;
+  flex-shrink: 0;
+}
+
+.recent-info { flex: 1; min-width: 0; }
+.recent-name { font-size: 12px; font-weight: 500; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.recent-meta { font-size: 10px; color: var(--text3); margin-top: 1px; }
+
+/* ── FOLDERS ── */
+.folder-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.folder-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.folder-card:hover { border-color: var(--blue); box-shadow: var(--shadow); }
+.folder-dot-sq { width: 10px; height: 10px; border-radius: 3px; margin-bottom: 8px; }
+.folder-name { font-size: 12px; font-weight: 500; color: var(--text); line-height: 1.3; }
+.folder-count { font-size: 10px; color: var(--text3); margin-top: 3px; }
+
+/* ── STATUS ── */
+.status-msg {
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  font-weight: 500;
+  margin-top: 10px;
+  display: none;
+}
+
+.status-success { background: var(--green-light); color: var(--green); }
+.status-error { background: var(--red-light); color: var(--red); }
+.status-loading { background: var(--blue-light); color: var(--blue); }
+
+/* ── LOADING SPINNER ── */
+.spinner {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  vertical-align: middle;
+  margin-right: 6px;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── MODAL ── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  display: none;
+}
+
+.modal {
+  background: var(--surface);
+  border-radius: 14px;
+  padding: 28px;
+  width: 90%;
+  max-width: 480px;
+  box-shadow: var(--shadow-md);
+}
+
+.modal-title { font-size: 16px; font-weight: 600; margin-bottom: 6px; }
+.modal-sub { font-size: 12px; color: var(--text2); margin-bottom: 20px; }
+
+.modal-actions { display: flex; gap: 10px; margin-top: 20px; justify-content: flex-end; }
+
+.btn-cancel {
+  padding: 9px 16px;
+  background: var(--surface2);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.select-input {
+  width: 100%;
+  padding: 9px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  color: var(--text);
+  background: var(--surface);
+  outline: none;
+  margin-top: 4px;
+}
+
+.select-input:focus { border-color: var(--blue); }
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 99px; }
+</style>
+</head>
+<body>
+
+<!-- LOGIN SCREEN -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="login-logo-badge" style="background:none;padding:0;"><svg width="60" height="60" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><g transform="translate(100,100)"><rect x="-90" y="-85" width="100" height="125" rx="12" fill="#0A1628"/><rect x="-55" y="-65" width="100" height="125" rx="12" fill="#1235A8"/><rect x="-20" y="-45" width="100" height="125" rx="12" fill="#2952F3"/><rect x="-10" y="-33" width="66" height="7" rx="3.5" fill="#FFFFFF" opacity="0.9"/><rect x="-10" y="-21" width="50" height="7" rx="3.5" fill="#FFFFFF" opacity="0.6"/><rect x="-10" y="-9" width="58" height="7" rx="3.5" fill="#FFFFFF" opacity="0.6"/><rect x="-10" y="3" width="42" height="7" rx="3.5" fill="#FFFFFF" opacity="0.6"/><rect x="-10" y="15" width="54" height="7" rx="3.5" fill="#FFFFFF" opacity="0.6"/><circle cx="72" cy="62" r="32" fill="#00C98D"/><path d="M58 62 L69 74 L88 48" fill="none" stroke="#FFFFFF" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></g></svg></div>
+      <div class="login-title">NEMSU R&D Document System</div>
+      <div class="login-sub">San Miguel Campus — Office of Research & Development</div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Username</label>
+      <input class="form-input" type="text" id="username" placeholder="Enter username" />
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Password</label>
+      <input class="form-input" type="password" id="password" placeholder="Enter password" />
+    </div>
+
+    <button class="btn-login" onclick="doLogin()">Sign In</button>
+    <div class="login-error" id="login-error">Incorrect username or password.</div>
+    <div class="login-hint">Contact your R&D Head to get your login credentials.</div>
+  </div>
+</div>
+
+<!-- EDIT MODAL -->
+<div class="modal-overlay" id="edit-modal">
+  <div class="modal">
+    <div class="modal-title">Edit document details</div>
+    <div class="modal-sub">Correct any information before saving to Google Drive.</div>
+    <div class="form-group">
+      <label class="form-label">Document title</label>
+      <input class="form-input" type="text" id="edit-title" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Proponent / Author</label>
+      <input class="form-input" type="text" id="edit-author" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Date</label>
+      <input class="form-input" type="text" id="edit-date" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Document category</label>
+      <select class="select-input" id="edit-category">
+        <option>R&D Proposals</option>
+        <option>Activity Proposals</option>
+        <option>Progress Reports</option>
+        <option>Terminal Reports</option>
+        <option>Completed Researches</option>
+        <option>TEG Reports</option>
+        <option>Letter Requests</option>
+        <option>Monitoring & Evaluation</option>
+        <option>PPMP & Procurement</option>
+        <option>MOA / MOU Documents</option>
+        <option>Certificates & Awards</option>
+        <option>Publications & Presentations</option>
+        <option>Forms & Templates</option>
+        <option>Creative Works</option>
+        <option>Extension Documents</option>
+      </select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+      <button class="btn-confirm" style="flex:none; padding:9px 20px;" onclick="applyEdit()">Save changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="app">
+  <div class="layout">
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+      <div class="sidebar-head">
+        <div class="sidebar-brand">
+          <div class="brand-icon" style="background:none;padding:0;width:34px;height:34px;"><svg width="34" height="34" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><g transform="translate(100,100)"><rect x="-90" y="-85" width="100" height="125" rx="12" fill="#0A1628"/><rect x="-55" y="-65" width="100" height="125" rx="12" fill="#1235A8"/><rect x="-20" y="-45" width="100" height="125" rx="12" fill="#2952F3"/><rect x="-10" y="-33" width="66" height="7" rx="3.5" fill="#FFFFFF" opacity="0.9"/><rect x="-10" y="-21" width="50" height="7" rx="3.5" fill="#FFFFFF" opacity="0.6"/><rect x="-10" y="-9" width="58" height="7" rx="3.5" fill="#FFFFFF" opacity="0.6"/><rect x="-10" y="3" width="42" height="7" rx="3.5" fill="#FFFFFF" opacity="0.6"/><rect x="-10" y="15" width="54" height="7" rx="3.5" fill="#FFFFFF" opacity="0.6"/><circle cx="72" cy="62" r="32" fill="#00C98D"/><path d="M58 62 L69 74 L88 48" fill="none" stroke="#FFFFFF" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></g></svg></div>
+          <div>
+            <div class="brand-name">NEMSU R&D</div>
+            <div class="brand-sub">Document System</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sidebar-nav">
+        <div class="nav-section-label">Main</div>
+        <div class="nav-item active" onclick="setNav(this, 'dashboard')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+          Dashboard
+        </div>
+        <div class="nav-item" onclick="setNav(this, 'upload')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+          Upload Document
+        </div>
+        <div class="nav-item" onclick="openSearch()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+          Search Documents
+        </div>
+
+        <div class="nav-section-label">Research Records</div>
+        <div class="nav-item" onclick="openFolder('R&D Proposals')"><div class="nav-dot" style="background:#1B4FD8;border-radius:2px;"></div>R&D Proposals</div>
+        <div class="nav-item" onclick="openFolder('Activity Proposals')"><div class="nav-dot" style="background:#166534;border-radius:2px;"></div>Activity Proposals</div>
+        <div class="nav-item" onclick="openFolder('Progress Reports')"><div class="nav-dot" style="background:#0F766E;border-radius:2px;"></div>Progress Reports</div>
+        <div class="nav-item" onclick="openFolder('Terminal Reports')"><div class="nav-dot" style="background:#5B21B6;border-radius:2px;"></div>Terminal Reports</div>
+        <div class="nav-item" onclick="openFolder('Completed Researches')"><div class="nav-dot" style="background:#92400E;border-radius:2px;"></div>Completed Researches</div>
+
+        <div class="nav-section-label">Evaluation</div>
+        <div class="nav-item" onclick="openFolder('TEG Reports')"><div class="nav-dot" style="background:#991B1B;border-radius:2px;"></div>TEG Reports</div>
+        <div class="nav-item" onclick="openFolder('Letter Requests')"><div class="nav-dot" style="background:#6B6760;border-radius:2px;"></div>Letter Requests</div>
+        <div class="nav-item" onclick="openFolder('Monitoring &amp; Evaluation')"><div class="nav-dot" style="background:#1B4FD8;border-radius:2px;"></div>Monitoring & Evaluation</div>
+
+        <div class="nav-section-label">Procurement</div>
+        <div class="nav-item" onclick="openFolder('PPMP &amp; Procurement')"><div class="nav-dot" style="background:#92400E;border-radius:2px;"></div>PPMP & Procurement</div>
+
+        <div class="nav-section-label">System</div>
+        <div class="nav-item" onclick="openSettings()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+          Settings
+        </div>
+
+        <div class="nav-section-label">Other Records</div>
+        <div class="nav-item" onclick="openFolder('MOA / MOU Documents')"><div class="nav-dot" style="background:#0F766E;border-radius:2px;"></div>MOA / MOU Documents</div>
+        <div class="nav-item" onclick="openFolder('Certificates &amp; Awards')"><div class="nav-dot" style="background:#9F1239;border-radius:2px;"></div>Certificates & Awards</div>
+        <div class="nav-item" onclick="openFolder('Publications &amp; Presentations')"><div class="nav-dot" style="background:#5B21B6;border-radius:2px;"></div>Publications & Presentations</div>
+        <div class="nav-item" onclick="openFolder('Forms &amp; Templates')"><div class="nav-dot" style="background:#6B6760;border-radius:2px;"></div>Forms & Templates</div>
+        <div class="nav-item" onclick="openFolder('Creative Works')"><div class="nav-dot" style="background:#166534;border-radius:2px;"></div>Creative Works</div>
+        <div class="nav-item" onclick="openFolder('Extension Documents')"><div class="nav-dot" style="background:#991B1B;border-radius:2px;"></div>Extension Documents</div>
+      </div>
+
+      <div class="sidebar-footer">
+        <div style="margin-bottom:10px;"><button id="drive-btn" onclick="connectDrive()" style="width:100%;padding:8px;background:#EBF0FD;color:#1B4FD8;border:1px solid #B8C9F8;border-radius:6px;font-family:DM Sans,sans-serif;font-size:12px;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg><span id="drive-btn-text">Connect Google Drive</span></button><div id="drive-status" style="font-size:10px;color:#166534;text-align:center;margin-top:4px;display:none;">Drive connected!</div></div><div class="user-row">
+          <div class="user-avatar" id="user-avatar">AD</div>
+          <div>
+            <div class="user-name" id="user-display">Admin</div>
+            <div class="user-role">R&D Office Staff</div>
+          </div>
+          <button class="btn-logout" onclick="doLogout()" title="Sign out">
+            <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="main">
+      <div class="topbar">
+        <div>
+          <div class="topbar-title" id="page-title">Dashboard</div>
+          <div class="topbar-sub">North Eastern Mindanao State University — R&D Office, San Miguel Campus</div>
+        </div>
+        <button class="btn-upload" onclick="setNav(document.querySelectorAll('.nav-item')[1], 'upload')">
+          <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+          Upload Document
+        </button>
+      </div>
+
+      <div class="content" id="main-content">
+        <!-- Dashboard view -->
+        <div id="view-dashboard">
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-label">Total Documents</div>
+              <div class="stat-val" id="stat-total">0</div>
+              <div class="stat-sub">All records</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">This Month</div>
+              <div class="stat-val" id="stat-month">0</div>
+              <div class="stat-sub" id="stat-month-label">March 2026</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Saved to Drive</div>
+              <div class="stat-val" id="stat-saved">0</div>
+              <div class="stat-sub">Files synced</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Categories Used</div>
+              <div class="stat-val" id="stat-cats">0</div>
+              <div class="stat-sub">of 15 folders</div>
+            </div>
+          </div>
+
+          <div class="panels">
+            <div class="panel">
+              <div class="panel-title">Recent uploads</div>
+              <div id="recent-list">
+                <div style="text-align:center; padding: 30px 0; color: var(--text3); font-size:12px;">No documents uploaded yet.</div>
+              </div>
+            </div>
+            <div class="panel">
+              <div class="panel-title">Quick upload</div>
+              <div class="upload-zone" id="drop-zone-dash">
+                <input type="file" id="file-input-dash" accept=".pdf,.doc,.docx,.xlsx,.xls,.jpg,.jpeg,.png" onchange="handleFile(this.files[0])">
+                <div class="upload-icon-wrap">
+                  <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+                </div>
+                <div class="upload-text">Drop a file or click to browse</div>
+                <div class="upload-sub">PDF, DOCX, XLSX, JPG — max 25MB</div>
+              </div>
+              <div class="ai-preview-box" id="ai-preview-dash">
+                <div class="ai-header">
+                  <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+                  AI detected
+                </div>
+                <div class="ai-field"><span class="ai-key">Type</span><span class="ai-val" id="p-type"></span></div>
+                <div class="ai-field"><span class="ai-key">Title</span><span class="ai-val" id="p-title"></span></div>
+                <div class="ai-field"><span class="ai-key">Proponent</span><span class="ai-val" id="p-author"></span></div>
+                <div class="ai-field"><span class="ai-key">Date</span><span class="ai-val" id="p-date"></span></div>
+                <div class="ai-field"><span class="ai-key">Save to</span><span class="ai-val" id="p-folder"></span></div>
+                <div class="status-msg" id="status-dash"></div>
+                <div class="ai-actions">
+                  <button class="btn-confirm" id="btn-save-dash" onclick="saveToNote()">Save to Google Drive</button>
+                  <button class="btn-edit" onclick="openModal()">Edit details</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-title">Document folders</div>
+            <div class="folder-grid" id="folder-grid"></div>
+          </div>
+        </div>
+
+        <!-- Folder view -->
+        <div id="view-folder" style="display:none;">
+          <div class="panel">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+              <div>
+                <div class="panel-title" id="folder-view-title">Folder</div>
+                <div style="font-size:11px;color:var(--text3);" id="folder-view-count">0 files</div>
+              </div>
+              <div style="display:flex;gap:8px;">
+                <button class="btn-upload" onclick="exportFolderData()" style="font-size:12px;padding:7px 12px;background:var(--green-light);color:var(--green);border-color:var(--green);">
+                  <svg viewBox="0 0 24 24" width="13" height="13"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+                  Export CSV
+                </button>
+                <button class="btn-upload" onclick="refreshFolderView()" style="font-size:12px;padding:7px 12px;">
+                  <svg viewBox="0 0 24 24" width="13" height="13"><path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
+                  Refresh
+                </button>
+              </div>
+            </div>
+            <div id="folder-file-list">
+              <div style="text-align:center;padding:40px 0;color:var(--text3);font-size:13px;">
+                Loading files from Google Drive...
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Settings view -->
+        <div id="view-settings" style="display:none;max-width:600px;">
+          <div class="panel" style="margin-bottom:16px;">
+            <div class="panel-title" style="margin-bottom:16px;">Appearance</div>
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border);">
+              <div>
+                <div style="font-size:13px;font-weight:500;color:var(--text);">Dark Mode</div>
+                <div style="font-size:11px;color:var(--text3);margin-top:2px;">Switch between light and dark theme</div>
+              </div>
+              <div id="dark-toggle" onclick="toggleDarkMode()" style="width:44px;height:24px;background:var(--border2);border-radius:12px;cursor:pointer;position:relative;transition:background 0.2s;">
+                <div id="dark-knob" style="width:20px;height:20px;background:white;border-radius:50%;position:absolute;top:2px;left:2px;transition:left 0.2s;box-shadow:0 1px 3px rgba(0,0,0,0.2);"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel" style="margin-bottom:16px;">
+            <div class="panel-title" style="margin-bottom:16px;">Account</div>
+            <div style="padding:12px 0;border-bottom:1px solid var(--border);">
+              <div style="font-size:13px;font-weight:500;color:var(--text);margin-bottom:10px;">Change Password</div>
+              <div style="display:flex;flex-direction:column;gap:8px;">
+                <input type="password" id="old-password" class="form-input" placeholder="Current password" style="max-width:300px;"/>
+                <input type="password" id="new-password" class="form-input" placeholder="New password" style="max-width:300px;"/>
+                <input type="password" id="confirm-password" class="form-input" placeholder="Confirm new password" style="max-width:300px;"/>
+                <button class="btn-confirm" onclick="changePassword()" style="max-width:140px;padding:9px 16px;">Update Password</button>
+                <div id="pwd-msg" style="font-size:12px;display:none;"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel" style="margin-bottom:16px;">
+            <div class="panel-title" style="margin-bottom:16px;">User Accounts</div>
+            <div id="users-list" style="margin-bottom:12px;"></div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <input type="text" id="new-username" class="form-input" placeholder="Username" style="width:140px;"/>
+              <input type="password" id="new-userpass" class="form-input" placeholder="Password" style="width:140px;"/>
+              <button class="btn-confirm" onclick="addUser()" style="padding:9px 14px;">Add User</button>
+            </div>
+            <div id="user-msg" style="font-size:12px;margin-top:8px;display:none;"></div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-title" style="margin-bottom:12px;">About</div>
+            <div style="font-size:13px;color:var(--text2);line-height:1.8;">
+              <div style="font-size:15px;font-weight:500;color:var(--text);margin-bottom:8px;">NEMSU R&D Document Management System</div>
+              <div>Developed by: <span style="color:var(--text);font-weight:500;">Julius Kim Lucagbo</span></div>
+              <div>Position: Research Staff</div>
+              <div>Campus: North Eastern Mindanao State University — San Miguel Campus</div>
+              <div>Year: 2026</div>
+              <div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);font-size:11px;color:var(--text3);">
+                Powered by Google Gemini AI &amp; Google Drive API. Built for the NEMSU Office of Research &amp; Development.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Search view -->
+        <div id="view-search" style="display:none;">
+          <div class="panel" style="margin-bottom:16px;">
+            <div class="panel-title">Search Documents</div>
+            <div style="display:flex;gap:10px;align-items:center;">
+              <input type="text" id="search-input" class="form-input" placeholder="Search by filename..." style="flex:1;" onkeydown="if(event.key==='Enter') doSearch()"/>
+              <select id="search-category" class="select-input" style="width:200px;">
+                <option value="">All categories</option>
+                <option>R&D Proposals</option>
+                <option>Activity Proposals</option>
+                <option>Progress Reports</option>
+                <option>Terminal Reports</option>
+                <option>Completed Researches</option>
+                <option>TEG Reports</option>
+                <option>Letter Requests</option>
+                <option>Monitoring &amp; Evaluation</option>
+                <option>PPMP &amp; Procurement</option>
+                <option>MOA / MOU Documents</option>
+                <option>Certificates &amp; Awards</option>
+                <option>Publications &amp; Presentations</option>
+                <option>Forms &amp; Templates</option>
+                <option>Creative Works</option>
+                <option>Extension Documents</option>
+              </select>
+              <button class="btn-upload" onclick="doSearch()" style="padding:9px 18px;font-size:13px;white-space:nowrap;">
+                <svg viewBox="0 0 24 24" width="13" height="13"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+                Search
+              </button>
+            </div>
+          </div>
+          <div class="panel">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+              <div class="panel-title" id="search-results-title">Results</div>
+              <div style="font-size:11px;color:var(--text3);" id="search-results-count"></div>
+            </div>
+            <div id="search-results-list">
+              <div style="text-align:center;padding:40px 0;color:var(--text3);font-size:13px;">
+                Type a search term and press Search.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Upload view -->
+        <div id="view-upload" style="display:none; max-width: 600px;">
+          <div class="panel">
+            <div class="panel-title">Upload a document</div>
+            <div class="upload-zone" id="drop-zone-up">
+              <input type="file" id="file-input-up" accept=".pdf,.doc,.docx,.xlsx,.xls,.jpg,.jpeg,.png" onchange="handleFile(this.files[0])">
+              <div class="upload-icon-wrap">
+                <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+              </div>
+              <div class="upload-text">Drop a file here or click to browse</div>
+              <div class="upload-sub">Supported: PDF, DOCX, XLSX, JPG, PNG — max 25MB</div>
+            </div>
+            <div class="ai-preview-box" id="ai-preview-up" style="display:none;">
+              <div class="ai-header">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+                AI detected
+              </div>
+              <div class="ai-field"><span class="ai-key">Type</span><span class="ai-val" id="p-type2"></span></div>
+              <div class="ai-field"><span class="ai-key">Title</span><span class="ai-val" id="p-title2"></span></div>
+              <div class="ai-field"><span class="ai-key">Proponent</span><span class="ai-val" id="p-author2"></span></div>
+              <div class="ai-field"><span class="ai-key">Date</span><span class="ai-val" id="p-date2"></span></div>
+              <div class="ai-field"><span class="ai-key">Save to</span><span class="ai-val" id="p-folder2"></span></div>
+              <div class="status-msg" id="status-up"></div>
+              <div class="ai-actions">
+                <button class="btn-confirm" id="btn-save-up" onclick="saveToNote()">Save to Google Drive</button>
+                <button class="btn-edit" onclick="openModal()">Edit details</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+var GEMINI_API_KEY = 'AIzaSyBpA9gDvhkUsjVwoOEwDUX5ApCLe43GKww';
+var USERS = { 'rdoadmin': 'RDO@2024!', 'rdhead': 'RDHead@2024!' };
+var CATEGORIES = [
+  'R&D Proposals','Activity Proposals','Progress Reports','Terminal Reports',
+  'Completed Researches','TEG Reports','Letter Requests','Monitoring & Evaluation',
+  'PPMP & Procurement','MOA / MOU Documents','Certificates & Awards',
+  'Publications & Presentations','Forms & Templates','Creative Works','Extension Documents'
+];
+var FOLDER_COLORS = {
+  'R&D Proposals':'#1B4FD8','Activity Proposals':'#166534','Progress Reports':'#0F766E',
+  'Terminal Reports':'#5B21B6','Completed Researches':'#92400E','TEG Reports':'#991B1B',
+  'Letter Requests':'#6B6760','Monitoring & Evaluation':'#1B4FD8','PPMP & Procurement':'#92400E',
+  'MOA / MOU Documents':'#0F766E','Certificates & Awards':'#9F1239',
+  'Publications & Presentations':'#5B21B6','Forms & Templates':'#6B6760',
+  'Creative Works':'#166534','Extension Documents':'#991B1B'
+};
+var BADGE_COLORS = {
+  'R&D Proposals':'badge-blue','Activity Proposals':'badge-green','Progress Reports':'badge-teal',
+  'Terminal Reports':'badge-purple','Completed Researches':'badge-amber','TEG Reports':'badge-red',
+  'Letter Requests':'','Monitoring & Evaluation':'badge-blue','PPMP & Procurement':'badge-amber',
+  'MOA / MOU Documents':'badge-teal','Certificates & Awards':'badge-rose',
+  'Publications & Presentations':'badge-purple','Forms & Templates':'',
+  'Creative Works':'badge-green','Extension Documents':'badge-red'
+};
+var FILE_COLORS = ['#1B4FD8','#166634','#0F766E','#5B21B6','#92400E','#991B1B','#9F1239'];
+var FILE_BG = ['#EBF0FD','#DCFCE7','#CCFBF1','#EDE9FE','#FEF3C7','#FEE2E2','#FFE4E6'];
+var apiKey = '';
+var currentFile = null;
+var detectedData = {};
+var uploadCount = 0;
+var recentUploads = [];
+var folderCounts = {};
+var driveAccessToken = null;
+var tokenClient = null;
+var driveRootId = null;
+var currentFolderName = '';
+var currentFolderFiles = [];
+var isDarkMode = false;
+var GDRIVE_CLIENT_ID = '847301189496-m5hul03jvl2aihhq2q8h9vpos2ipqa4c.apps.googleusercontent.com';
+
+function doLogin() {
+  var u = document.getElementById('username').value.trim();
+  var p = document.getElementById('password').value;
+  var err = document.getElementById('login-error');
+  if (!USERS[u] || USERS[u] !== p) {
+    err.style.display = 'block';
+    err.textContent = 'Incorrect username or password.';
+    return;
+  }
+  apiKey = GEMINI_API_KEY;
+  err.style.display = 'none';
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  document.getElementById('user-avatar').textContent = u.slice(0,2).toUpperCase();
+  document.getElementById('user-display').textContent = u;
+  buildFolderGrid();
+  updateStats();
+  var savedDark = localStorage.getItem('nemsu_darkmode');
+  if (savedDark === '1') toggleDarkMode();
+}
+
+function doLogout() {
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('password').value = '';
+  apiKey = '';
+  driveAccessToken = null;
+  driveRootId = null;
+  window._geminiModel = null;
+}
+
+function showView(name) {
+  ['dashboard','upload','folder','search','settings'].forEach(function(v) {
+    var el = document.getElementById('view-' + v);
+    if (el) el.style.display = (v === name) ? 'block' : 'none';
+  });
+}
+
+function setNav(el, view) {
+  document.querySelectorAll('.nav-item').forEach(function(n) { n.classList.remove('active'); });
+  el.classList.add('active');
+  showView(view || 'dashboard');
+  if (view === 'upload') {
+    document.getElementById('page-title').textContent = 'Upload Document';
+  } else {
+    document.getElementById('page-title').textContent = el.textContent.trim();
+  }
+}
+
+function openFolder(folderName) {
+  currentFolderName = folderName;
+  document.querySelectorAll('.nav-item').forEach(function(n) { n.classList.remove('active'); });
+  document.querySelectorAll('.nav-item').forEach(function(n) {
+    if (n.textContent.trim() === folderName) n.classList.add('active');
+  });
+  showView('folder');
+  document.getElementById('page-title').textContent = folderName;
+  document.getElementById('folder-view-title').textContent = folderName;
+  document.getElementById('folder-view-count').textContent = 'Loading...';
+  loadFolderFiles(folderName);
+}
+
+function openSearch() {
+  document.querySelectorAll('.nav-item').forEach(function(n) { n.classList.remove('active'); });
+  document.querySelectorAll('.nav-item').forEach(function(n) {
+    if (n.textContent.trim() === 'Search Documents') n.classList.add('active');
+  });
+  showView('search');
+  document.getElementById('page-title').textContent = 'Search Documents';
+  document.getElementById('search-input').focus();
+}
+
+function openSettings() {
+  document.querySelectorAll('.nav-item').forEach(function(n) { n.classList.remove('active'); });
+  document.querySelectorAll('.nav-item').forEach(function(n) {
+    if (n.textContent.trim() === 'Settings') n.classList.add('active');
+  });
+  showView('settings');
+  document.getElementById('page-title').textContent = 'Settings';
+  renderUsersList();
+}
+
+function buildFolderGrid() {
+  var grid = document.getElementById('folder-grid');
+  if (!grid) return;
+  grid.innerHTML = '';
+  CATEGORIES.forEach(function(cat) {
+    var count = folderCounts[cat] || 0;
+    var color = FOLDER_COLORS[cat];
+    var div = document.createElement('div');
+    div.className = 'folder-card';
+    div.onclick = function() { openFolder(cat); };
+    div.innerHTML = '<div class="folder-dot-sq" style="background:' + color + ';"></div>' +
+      '<div class="folder-name">' + cat + '</div>' +
+      '<div class="folder-count">' + count + ' file' + (count !== 1 ? 's' : '') + '</div>';
+    grid.appendChild(div);
+  });
+}
+
+function updateStats() {
+  var el = document.getElementById('stat-total');
+  if (el) el.textContent = uploadCount;
+  el = document.getElementById('stat-month');
+  if (el) el.textContent = uploadCount;
+  el = document.getElementById('stat-saved');
+  if (el) el.textContent = uploadCount;
+  var cats = Object.keys(folderCounts).filter(function(k) { return folderCounts[k] > 0; }).length;
+  el = document.getElementById('stat-cats');
+  if (el) el.textContent = cats;
+}
+
+function handleFile(file) {
+  if (!file) return;
+  currentFile = file;
+  showStatus('status-dash', 'loading', '<span class="spinner"></span> AI is reading your document...');
+  document.getElementById('ai-preview-dash').style.display = 'block';
+  document.getElementById('ai-preview-up').style.display = 'block';
+  ['p-type','p-title','p-author','p-date','p-folder','p-type2','p-title2','p-author2','p-date2','p-folder2'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.textContent = '...';
+  });
+  document.getElementById('btn-save-dash').disabled = true;
+  document.getElementById('btn-save-up').disabled = true;
+  readFileText(file).then(function(text) {
+    return callGemini(text, file.name);
+  }).then(function(result) {
+    detectedData = result;
+    populatePreview(result);
+    hideStatus('status-dash');
+    hideStatus('status-up');
+    document.getElementById('btn-save-dash').disabled = false;
+    document.getElementById('btn-save-up').disabled = false;
+  }).catch(function(e) {
+    showStatus('status-dash', 'error', 'Error: ' + e.message);
+    showStatus('status-up', 'error', 'Error: ' + e.message);
+    document.getElementById('btn-save-dash').disabled = false;
+    document.getElementById('btn-save-up').disabled = false;
+  });
+}
+
+function extractDOI(text) {
+  var patterns = ['10\\.\\d{4,}\\/\\S+', 'doi\\.org\\/(10\\.\\S+)', 'dx\\.doi\\.org\\/(10\\.\\S+)'];
+  for (var i = 0; i < patterns.length; i++) {
+    var m = text.match(new RegExp(patterns[i], 'i'));
+    if (m) return m[0].replace(/[.,;)]+$/, '');
+  }
+  return null;
+}
+
+function guessFromFilename(filename) {
+  var fn = filename.toLowerCase().replace(/[_\-]/g, ' ').replace(/\.\w+$/, '');
+  var map = [
+    ['R&D Proposals', ['proposal','research proposal','rd proposal','project proposal']],
+    ['Activity Proposals', ['activity','seminar','training','workshop','capability']],
+    ['Progress Reports', ['progress','status report','quarterly','q1 ','q2 ','q3 ','q4 ']],
+    ['Terminal Reports', ['terminal','final report','completion']],
+    ['TEG Reports', ['teg','technical eval','panel eval']],
+    ['Publications & Presentations', ['publication','paper','journal','article','conference','presentation','manuscript','lucagbo']],
+    ['PPMP & Procurement', ['ppmp','purchase','rfq','canvass','procurement']],
+    ['MOA / MOU Documents', ['moa','mou','memorandum','agreement']],
+    ['Certificates & Awards', ['certificate','award','recognition','plaque']],
+    ['Monitoring & Evaluation', ['monitoring','evaluation','logbook']],
+    ['Completed Researches', ['completed','finished']],
+    ['Letter Requests', ['letter','request','endorsement','intent']],
+    ['Forms & Templates', ['form','template','blank']],
+    ['Creative Works', ['creative','artwork','literary']],
+    ['Extension Documents', ['extension','community','outreach']]
+  ];
+  for (var i = 0; i < map.length; i++) {
+    for (var j = 0; j < map[i][1].length; j++) {
+      if (fn.indexOf(map[i][1][j]) >= 0) return map[i][0];
+    }
+  }
+  return null;
+}
+
+function readFileText(file) {
+  return new Promise(function(resolve) {
+    var name = file.name;
+    var ext = name.split('.').pop().toLowerCase();
+    if (file.type.startsWith('image/') || ['jpg','jpeg','png','gif','bmp','webp'].indexOf(ext) >= 0) {
+      resolve('FILENAME: ' + name + '\nThis is an image file.');
+      return;
+    }
+    var reader = new FileReader();
+    if (ext === 'pdf') {
+      reader.onload = function(e) {
+        try {
+          var arr = new Uint8Array(e.target.result);
+          var raw = '';
+          for (var i = 0; i < Math.min(arr.length, 80000); i++) {
+            var c = arr[i];
+            if (c >= 32 && c < 127) raw += String.fromCharCode(c);
+            else if (c === 10 || c === 13) raw += ' ';
+          }
+          var words = [];
+          var word = '';
+          for (var i = 0; i < raw.length; i++) {
+            var ch = raw[i];
+            if (ch === ' ' || ch === '\t') {
+              if (word.length >= 3) words.push(word);
+              word = '';
+            } else {
+              word += ch;
+            }
+          }
+          var text = words.join(' ').slice(0, 4000);
+          resolve('FILENAME: ' + name + '\nEXTRACTED TEXT:\n' + text);
+        } catch(err) {
+          resolve('FILENAME: ' + name);
+        }
+      };
+      reader.onerror = function() { resolve('FILENAME: ' + name); };
+      reader.readAsArrayBuffer(file);
+    } else {
+      reader.onload = function(e) {
+        resolve('FILENAME: ' + name + '\nCONTENT:\n' + (e.target.result || '').slice(0, 4000));
+      };
+      reader.onerror = function() { resolve('FILENAME: ' + name); };
+      reader.readAsText(file);
+    }
+  });
+}
+
+function getModel() {
+  if (window._geminiModel) return Promise.resolve(window._geminiModel);
+  return fetch('https://generativelanguage.googleapis.com/v1beta/models?key=' + apiKey)
+    .then(function(r) { if (!r.ok) throw new Error('Cannot list models'); return r.json(); })
+    .then(function(data) {
+      var models = (data.models || []).filter(function(m) {
+        return m.supportedGenerationMethods && m.supportedGenerationMethods.indexOf('generateContent') >= 0;
+      });
+      var priority = ['gemini-2.5-flash','gemini-2.0-flash','gemini-1.5-flash','gemini-pro'];
+      for (var i = 0; i < priority.length; i++) {
+        var found = models.find(function(m) { return m.name.toLowerCase().indexOf(priority[i]) >= 0; });
+        if (found) { window._geminiModel = found.name.replace('models/',''); return window._geminiModel; }
+      }
+      if (models.length > 0) { window._geminiModel = models[0].name.replace('models/',''); return window._geminiModel; }
+      throw new Error('No usable Gemini model found');
+    });
+}
+
+function callGemini(textContent, filename) {
+  return getModel().then(function(model) {
+    var catList = CATEGORIES.join(', ');
+    var filenameGuess = guessFromFilename(filename);
+    var doi = extractDOI(textContent);
+    var contentHint = filenameGuess ? 'Filename suggests: ' + filenameGuess + '. ' : '';
+    var doiHint = doi ? 'DOI found: ' + doi + ' - this is a publication. ' : '';
+    var prompt = 'You are a document classifier for NEMSU R&D Office Philippines. '
+      + 'FILENAME: ' + filename + '. '
+      + contentHint + doiHint
+      + 'DOCUMENT HEADER: ' + textContent.slice(0, 500) + '. '
+      + 'FULL CONTENT: ' + textContent.slice(0, 3000) + '. '
+      + 'CATEGORIES: ' + catList + '. '
+      + 'RULES: 1)Use filename hint if clear. 2)Find title in first 200 chars. '
+      + '3)Find author after Prepared by/Proponent/By/Researcher. '
+      + '4)Find date as Month Year or YYYY-MM-DD. '
+      + '5)If DOI exists set category to Publications and Presentations. '
+      + 'Reply ONLY with valid JSON no markdown: '
+      + '{"category":"exact category","title":"title from content","author":"name or N/A","date":"date or N/A","summary":"one sentence"}';
+    return fetch('https://generativelanguage.googleapis.com/v1beta/models/' + model + ':generateContent?key=' + apiKey, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { temperature: 0.1, maxOutputTokens: 300 } })
+    });
+  }).then(function(response) {
+    if (!response.ok) return response.json().then(function(e) { throw new Error(e.error ? e.error.message : 'HTTP ' + response.status); });
+    return response.json();
+  }).then(function(data) {
+    var raw = (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0]) ? data.candidates[0].content.parts[0].text : '';
+    if (!raw) return { category: 'Forms & Templates', title: filename, author: 'N/A', date: 'N/A', summary: '' };
+    var clean = raw.replace(new RegExp('```json', 'g'), '').replace(new RegExp('```', 'g'), '').trim();
+    try { return JSON.parse(clean); } catch(e) {
+      var s = clean.indexOf('{'), en = clean.lastIndexOf('}');
+      if (s >= 0 && en > s) { try { return JSON.parse(clean.slice(s, en+1)); } catch(e2) {} }
+      var fn = filename.replace(/\.[^.]+$/, '').replace(/[_-]/g, ' ');
+      return { category: guessFromFilename(filename) || 'Forms & Templates', title: fn, author: 'N/A', date: 'N/A', summary: '' };
+    }
+  });
+}
+
+function normalizeCategory(raw) {
+  if (!raw) return 'Forms & Templates';
+  var exact = CATEGORIES.find(function(c) { return c === raw; });
+  if (exact) return exact;
+  var lower = raw.toLowerCase();
+  var kws = {
+    'R&D Proposals':['r&d proposal','research proposal','rd proposal','project proposal'],
+    'Activity Proposals':['activity proposal','seminar','training','workshop'],
+    'Progress Reports':['progress report','status report','quarterly'],
+    'Terminal Reports':['terminal report','final report','completion'],
+    'TEG Reports':['teg','technical evaluation'],
+    'Publications & Presentations':['publication','presentation','journal','article','conference','manuscript','paper','lucagbo'],
+    'PPMP & Procurement':['ppmp','purchase','procurement','rfq','canvass'],
+    'MOA / MOU Documents':['moa','mou','memorandum','agreement'],
+    'Certificates & Awards':['certificate','award','recognition'],
+    'Monitoring & Evaluation':['monitoring','evaluation','m&e'],
+    'Completed Researches':['completed research','finished research'],
+    'Letter Requests':['letter request','request letter','endorsement'],
+    'Forms & Templates':['form','template','blank'],
+    'Creative Works':['creative','artwork','literary'],
+    'Extension Documents':['extension','community','outreach']
+  };
+  for (var cat in kws) {
+    for (var i = 0; i < kws[cat].length; i++) {
+      if (lower.indexOf(kws[cat][i]) >= 0) return cat;
+    }
+  }
+  return 'Forms & Templates';
+}
+
+function populatePreview(d) {
+  var cat = normalizeCategory(d.category);
+  d.category = cat;
+  var badgeClass = BADGE_COLORS[cat] || 'badge-blue';
+  ['','2'].forEach(function(sfx) {
+    var el = document.getElementById('p-type' + sfx);
+    if (el) el.innerHTML = '<span class="badge ' + badgeClass + '">' + cat + '</span>';
+    el = document.getElementById('p-title' + sfx);
+    if (el) el.textContent = d.title || 'Unknown';
+    el = document.getElementById('p-author' + sfx);
+    if (el) el.textContent = d.author || 'N/A';
+    el = document.getElementById('p-date' + sfx);
+    if (el) el.textContent = d.date || 'N/A';
+    el = document.getElementById('p-folder' + sfx);
+    if (el) el.textContent = cat + '/';
+  });
+  var sel = document.getElementById('edit-category');
+  if (sel) {
+    for (var i = 0; i < sel.options.length; i++) {
+      if (sel.options[i].value === cat) { sel.selectedIndex = i; break; }
+    }
+  }
+  var t = document.getElementById('edit-title'); if (t) t.value = d.title || '';
+  var a = document.getElementById('edit-author'); if (a) a.value = d.author || '';
+  var dt = document.getElementById('edit-date'); if (dt) dt.value = d.date || '';
+}
+
+function connectDrive() {
+  if (!window.google || !window.google.accounts) { alert('Google Sign-In still loading. Please wait and try again.'); return; }
+  if (!tokenClient) {
+    tokenClient = google.accounts.oauth2.initTokenClient({
+      client_id: GDRIVE_CLIENT_ID,
+      scope: 'https://www.googleapis.com/auth/drive.file',
+      callback: function(response) {
+        if (response.error) { alert('Drive connection failed: ' + response.error); return; }
+        driveAccessToken = response.access_token;
+        var btn = document.getElementById('drive-btn');
+        if (btn) { btn.style.background = '#DCFCE7'; btn.style.color = '#166534'; btn.style.borderColor = '#86EFAC'; }
+        var txt = document.getElementById('drive-btn-text');
+        if (txt) txt.textContent = 'Drive Connected!';
+        var st = document.getElementById('drive-status');
+        if (st) st.style.display = 'block';
+      }
+    });
+  }
+  tokenClient.requestAccessToken();
+}
+
+function getOrCreateFolder(folderName, parentId) {
+  var q = 'name="' + folderName + '" and mimeType="application/vnd.google-apps.folder" and trashed=false';
+  if (parentId) q += ' and "' + parentId + '" in parents';
+  return fetch('https://www.googleapis.com/drive/v3/files?q=' + encodeURIComponent(q) + '&fields=files(id,name)', {
+    headers: { 'Authorization': 'Bearer ' + driveAccessToken }
+  }).then(function(r) { return r.json(); }).then(function(data) {
+    if (data.files && data.files.length > 0) return data.files[0].id;
+    var body = { name: folderName, mimeType: 'application/vnd.google-apps.folder' };
+    if (parentId) body.parents = [parentId];
+    return fetch('https://www.googleapis.com/drive/v3/files', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + driveAccessToken, 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    }).then(function(r) { return r.json(); }).then(function(f) { return f.id; });
+  });
+}
+
+function uploadToDrive(file, category) {
+  if (!driveAccessToken) return Promise.reject(new Error('Google Drive not connected. Click Connect Google Drive first.'));
+  return getOrCreateFolder('NEMSU R&D Documents', null).then(function(rootId) {
+    driveRootId = rootId;
+    return getOrCreateFolder(category, rootId);
+  }).then(function(catId) {
+    if (category === 'PPMP & Procurement' && detectedData && detectedData.title) {
+      return getOrCreateFolder(detectedData.title, catId);
+    }
+    return catId;
+  }).then(function(folderId) {
+    var metadata = { name: file.name, parents: [folderId] };
+    var form = new FormData();
+    form.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
+    form.append('file', file);
+    return fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,name,webViewLink', {
+      method: 'POST', headers: { 'Authorization': 'Bearer ' + driveAccessToken }, body: form
+    });
+  }).then(function(res) {
+    if (!res.ok) return res.json().then(function(e) { throw new Error(e.error ? e.error.message : 'Upload failed'); });
+    return res.json();
+  });
+}
+
+function saveToNote() {
+  if (!currentFile || !detectedData) return;
+  var cat = detectedData.category || 'Forms & Templates';
+  showStatus('status-dash', 'loading', '<span class="spinner"></span> Uploading to Google Drive...');
+  showStatus('status-up', 'loading', '<span class="spinner"></span> Uploading to Google Drive...');
+  document.getElementById('btn-save-dash').disabled = true;
+  document.getElementById('btn-save-up').disabled = true;
+  uploadToDrive(currentFile, cat).then(function(result) {
+    folderCounts[cat] = (folderCounts[cat] || 0) + 1;
+    uploadCount++;
+    var idx = uploadCount % FILE_COLORS.length;
+    var ext = currentFile.name.split('.').pop().toUpperCase().slice(0,4);
+    var link = result.webViewLink || '';
+    recentUploads.unshift({ name: currentFile.name, cat: cat, ext: ext, color: FILE_COLORS[idx], bg: FILE_BG[idx], time: 'Just now', link: link });
+    if (recentUploads.length > 6) recentUploads.pop();
+    updateRecentList();
+    buildFolderGrid();
+    updateStats();
+    var msg = link ? 'Saved! <a href="' + link + '" target="_blank" style="color:#166534;font-weight:600;">View in Google Drive</a>' : 'Saved to Google Drive — ' + cat + '/';
+    showStatus('status-dash', 'success', msg);
+    showStatus('status-up', 'success', msg);
+    currentFile = null;
+    detectedData = {};
+    setTimeout(function() {
+      document.getElementById('ai-preview-dash').style.display = 'none';
+      document.getElementById('ai-preview-up').style.display = 'none';
+      hideStatus('status-dash');
+      hideStatus('status-up');
+      document.getElementById('btn-save-dash').disabled = false;
+      document.getElementById('btn-save-up').disabled = false;
+      document.getElementById('file-input-dash').value = '';
+      document.getElementById('file-input-up').value = '';
+    }, 5000);
+  }).catch(function(err) {
+    showStatus('status-dash', 'error', 'Upload failed: ' + err.message);
+    showStatus('status-up', 'error', 'Upload failed: ' + err.message);
+    document.getElementById('btn-save-dash').disabled = false;
+    document.getElementById('btn-save-up').disabled = false;
+  });
+}
+
+function updateRecentList() {
+  var list = document.getElementById('recent-list');
+  if (!list) return;
+  if (recentUploads.length === 0) {
+    list.innerHTML = '<div style="text-align:center;padding:30px 0;color:var(--text3);font-size:12px;">No documents uploaded yet.</div>';
+    return;
+  }
+  list.innerHTML = recentUploads.map(function(u) {
+    return '<div class="recent-item"><div class="file-badge" style="background:' + u.bg + ';color:' + u.color + ';">' + u.ext + '</div>' +
+      '<div class="recent-info"><div class="recent-name">' + u.name + '</div><div class="recent-meta">' + u.cat + ' · ' + u.time + '</div></div>' +
+      '<span class="badge badge-green">Saved</span></div>';
+  }).join('');
+}
+
+function getRootFolderId() {
+  if (driveRootId) return Promise.resolve(driveRootId);
+  return fetch('https://www.googleapis.com/drive/v3/files?q=' + encodeURIComponent('name="NEMSU R&D Documents" and mimeType="application/vnd.google-apps.folder" and trashed=false') + '&fields=files(id,name)', {
+    headers: { 'Authorization': 'Bearer ' + driveAccessToken }
+  }).then(function(r) { return r.json(); }).then(function(data) {
+    if (data.files && data.files.length > 0) { driveRootId = data.files[0].id; return driveRootId; }
+    return null;
+  });
+}
+
+function findFolderInParent(name, parentId) {
+  if (!parentId) return Promise.resolve(null);
+  return fetch('https://www.googleapis.com/drive/v3/files?q=' + encodeURIComponent('name="' + name + '" and mimeType="application/vnd.google-apps.folder" and "' + parentId + '" in parents and trashed=false') + '&fields=files(id,name)', {
+    headers: { 'Authorization': 'Bearer ' + driveAccessToken }
+  }).then(function(r) { return r.json(); }).then(function(data) {
+    return (data.files && data.files.length > 0) ? data.files[0].id : null;
+  });
+}
+
+function loadFolderFiles(folderName) {
+  var listEl = document.getElementById('folder-file-list');
+  if (!driveAccessToken) {
+    listEl.innerHTML = '<div style="text-align:center;padding:40px 0;"><div style="font-size:13px;color:var(--text3);margin-bottom:12px;">Connect Google Drive to view files.</div><button class="btn-upload" onclick="connectDrive()" style="font-size:12px;padding:8px 16px;">Connect Google Drive</button></div>';
+    document.getElementById('folder-view-count').textContent = '—';
+    return;
+  }
+  listEl.innerHTML = '<div style="text-align:center;padding:40px 0;color:var(--text3);font-size:13px;"><span class="spinner" style="border-color:var(--blue);border-top-color:transparent;"></span> Loading from Google Drive...</div>';
+  getRootFolderId().then(function(rootId) {
+    return findFolderInParent(folderName, rootId);
+  }).then(function(folderId) {
+    if (!folderId) {
+      listEl.innerHTML = '<div style="text-align:center;padding:40px 0;color:var(--text3);font-size:13px;">No files uploaded yet in this folder.</div>';
+      document.getElementById('folder-view-count').textContent = '0 files';
+      return;
+    }
+    return fetch('https://www.googleapis.com/drive/v3/files?q=' + encodeURIComponent('"' + folderId + '" in parents and trashed=false') + '&fields=files(id,name,mimeType,createdTime,size,webViewLink)&orderBy=createdTime desc', {
+      headers: { 'Authorization': 'Bearer ' + driveAccessToken }
+    }).then(function(r) { return r.json(); }).then(function(data) {
+      var files = data.files || [];
+      currentFolderFiles = files;
+      document.getElementById('folder-view-count').textContent = files.length + ' file' + (files.length !== 1 ? 's' : '');
+      folderCounts[folderName] = files.length;
+      updateStats();
+      buildFolderGrid();
+      if (files.length === 0) {
+        listEl.innerHTML = '<div style="text-align:center;padding:40px 0;color:var(--text3);font-size:13px;">No files uploaded yet in this folder.</div>';
+        return;
+      }
+      listEl.innerHTML = files.map(function(f) {
+        var ext = f.name.split('.').pop().toUpperCase().slice(0,4);
+        var colorIdx = ['PDF','DOC','XLS','JPG','PNG'].indexOf(ext);
+        var colors = ['#1B4FD8','#166534','#92400E','#9F1239','#5B21B6'];
+        var bgs = ['#EBF0FD','#DCFCE7','#FEF3C7','#FFE4E6','#EDE9FE'];
+        var c = colors[colorIdx >= 0 ? colorIdx : 0];
+        var bg = bgs[colorIdx >= 0 ? colorIdx : 0];
+        var date = f.createdTime ? new Date(f.createdTime).toLocaleDateString('en-PH', {year:'numeric',month:'short',day:'numeric'}) : '';
+        var size = f.size ? (f.size > 1048576 ? (f.size/1048576).toFixed(1) + ' MB' : (f.size/1024).toFixed(0) + ' KB') : '';
+        return '<div class="recent-item" style="padding:12px 0;">' +
+          '<div class="file-badge" style="background:' + bg + ';color:' + c + ';width:36px;height:36px;font-size:9px;">' + ext + '</div>' +
+          '<div class="recent-info" style="flex:1;min-width:0;"><div class="recent-name" style="font-size:13px;">' + f.name + '</div>' +
+          '<div class="recent-meta" style="font-size:11px;">' + date + (size ? ' · ' + size : '') + '</div></div>' +
+          '<div style="display:flex;gap:6px;">' +
+          (f.webViewLink ? '<a href="' + f.webViewLink + '" target="_blank" style="display:inline-flex;align-items:center;gap:5px;padding:6px 12px;background:var(--blue-light);color:var(--blue);border:1px solid var(--blue-mid);border-radius:6px;font-size:11px;font-weight:500;text-decoration:none;white-space:nowrap;">Open in Drive</a>' : '') +
+          '<button onclick="deleteFile(this)" data-id="' + f.id + '" data-name="' + encodeURIComponent(f.name) + '" style="display:inline-flex;align-items:center;gap:4px;padding:6px 10px;background:var(--red-light);color:var(--red);border:1px solid var(--red);border-radius:6px;font-size:11px;font-weight:500;cursor:pointer;white-space:nowrap;">Delete</button>' +
+          '</div>' +
+          '</div>';
+      }).join('');
+    });
+  }).catch(function(err) {
+    listEl.innerHTML = '<div style="text-align:center;padding:40px 0;color:var(--red);font-size:13px;">Error: ' + err.message + '</div>';
+    document.getElementById('folder-view-count').textContent = 'Error';
+  });
+}
+
+function refreshFolderView() { if (currentFolderName) loadFolderFiles(currentFolderName); }
+
+function exportFolderData() {
+  if (currentFolderFiles.length === 0) { alert('No files to export. Load a folder first.'); return; }
+  var rows = ['File Name,Date Uploaded,Google Drive Link'];
+  currentFolderFiles.forEach(function(f) {
+    var date = f.createdTime ? new Date(f.createdTime).toLocaleDateString('en-PH') : '';
+    rows.push('"' + f.name.replace(/"/g,'""') + '","' + date + '","' + (f.webViewLink || '') + '"');
+  });
+  var blob = new Blob([rows.join('\n')], { type: 'text/csv' });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = currentFolderName.replace(/[^a-z0-9]/gi,'_') + '_export.csv';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function doSearch() {
+  var query = document.getElementById('search-input').value.trim();
+  var category = document.getElementById('search-category').value;
+  var listEl = document.getElementById('search-results-list');
+  var countEl = document.getElementById('search-results-count');
+  var titleEl = document.getElementById('search-results-title');
+  if (!driveAccessToken) {
+    listEl.innerHTML = '<div style="text-align:center;padding:40px 0;"><div style="font-size:13px;color:var(--text3);margin-bottom:12px;">Connect Google Drive to search files.</div><button class="btn-upload" onclick="connectDrive()" style="font-size:12px;padding:8px 16px;">Connect Google Drive</button></div>';
+    return;
+  }
+  if (!query && !category) {
+    listEl.innerHTML = '<div style="text-align:center;padding:40px 0;color:var(--text3);font-size:13px;">Please enter a search term or select a category.</div>';
+    return;
+  }
+  listEl.innerHTML = '<div style="text-align:center;padding:40px 0;color:var(--text3);font-size:13px;"><span class="spinner" style="border-color:var(--blue);border-top-color:transparent;"></span> Searching...</div>';
+  countEl.textContent = '';
+  titleEl.textContent = 'Results for: ' + (query || category);
+  getRootFolderId().then(function(rootId) {
+    if (!rootId) {
+      listEl.innerHTML = '<div style="text-align:center;padding:40px 0;color:var(--text3);font-size:13px;">No documents folder found yet.</div>';
+      return;
+    }
+    return searchInFolder(rootId, query, category).then(function(files) {
+      if (files.length === 0) {
+        listEl.innerHTML = '<div style="text-align:center;padding:40px 0;color:var(--text3);font-size:13px;">No files found.</div>';
+        countEl.textContent = '0 results';
+        return;
+      }
+      countEl.textContent = files.length + ' result' + (files.length !== 1 ? 's' : '') + ' found';
+      listEl.innerHTML = files.map(function(f) {
+        var ext = f.name.split('.').pop().toUpperCase().slice(0,4);
+        var colorIdx = ['PDF','DOC','XLS','JPG','PNG'].indexOf(ext);
+        var colors = ['#1B4FD8','#166534','#92400E','#9F1239','#5B21B6'];
+        var bgs = ['#EBF0FD','#DCFCE7','#FEF3C7','#FFE4E6','#EDE9FE'];
+        var c = colors[colorIdx >= 0 ? colorIdx : 0];
+        var bg = bgs[colorIdx >= 0 ? colorIdx : 0];
+        var date = f.createdTime ? new Date(f.createdTime).toLocaleDateString('en-PH', {year:'numeric',month:'short',day:'numeric'}) : '';
+        var badgeClass = BADGE_COLORS[f.folderName] || 'badge-blue';
+        return '<div class="recent-item" style="padding:12px 0;">' +
+          '<div class="file-badge" style="background:' + bg + ';color:' + c + ';width:36px;height:36px;font-size:9px;">' + ext + '</div>' +
+          '<div class="recent-info" style="flex:1;min-width:0;"><div class="recent-name" style="font-size:13px;">' + f.name + '</div>' +
+          '<div class="recent-meta" style="font-size:11px;display:flex;align-items:center;gap:6px;"><span class="badge ' + badgeClass + '" style="font-size:9px;">' + (f.folderName || '') + '</span>' + (date ? ' · ' + date : '') + '</div></div>' +
+          (f.webViewLink ? '<a href="' + f.webViewLink + '" target="_blank" style="display:inline-flex;align-items:center;gap:5px;padding:6px 12px;background:var(--blue-light);color:var(--blue);border:1px solid var(--blue-mid);border-radius:6px;font-size:11px;font-weight:500;text-decoration:none;white-space:nowrap;">Open in Drive</a>' : '') +
+          '</div>';
+      }).join('');
+    });
+  }).catch(function(err) {
+    listEl.innerHTML = '<div style="text-align:center;padding:30px 0;color:var(--red);font-size:13px;">Search error: ' + err.message + '</div>';
+  });
+}
+
+function searchInFolder(rootId, query, categoryFilter) {
+  return fetch('https://www.googleapis.com/drive/v3/files?q=' + encodeURIComponent('"' + rootId + '" in parents and mimeType="application/vnd.google-apps.folder" and trashed=false') + '&fields=files(id,name)', {
+    headers: { 'Authorization': 'Bearer ' + driveAccessToken }
+  }).then(function(r) { return r.json(); }).then(function(data) {
+    var folders = data.files || [];
+    if (categoryFilter) folders = folders.filter(function(f) { return f.name === categoryFilter; });
+    var promises = folders.map(function(folder) {
+      var q = '"' + folder.id + '" in parents and trashed=false and mimeType!="application/vnd.google-apps.folder"';
+      if (query) q += ' and name contains "' + query.replace(/"/g,'') + '"';
+      return fetch('https://www.googleapis.com/drive/v3/files?q=' + encodeURIComponent(q) + '&fields=files(id,name,mimeType,createdTime,size,webViewLink)&orderBy=createdTime desc', {
+        headers: { 'Authorization': 'Bearer ' + driveAccessToken }
+      }).then(function(r) { return r.json(); }).then(function(data) {
+        return (data.files || []).map(function(f) { f.folderName = folder.name; return f; });
+      });
+    });
+    return Promise.all(promises).then(function(results) {
+      var all = [];
+      results.forEach(function(r) { all = all.concat(r); });
+      all.sort(function(a,b) { return new Date(b.createdTime) - new Date(a.createdTime); });
+      return all;
+    });
+  });
+}
+
+function toggleDarkMode() {
+  isDarkMode = !isDarkMode;
+  document.body.classList.toggle('dark-mode', isDarkMode);
+  var knob = document.getElementById('dark-knob');
+  var toggle = document.getElementById('dark-toggle');
+  if (knob) knob.style.left = isDarkMode ? '22px' : '2px';
+  if (toggle) toggle.style.background = isDarkMode ? 'var(--blue)' : 'var(--border2)';
+  localStorage.setItem('nemsu_darkmode', isDarkMode ? '1' : '0');
+}
+
+function renderUsersList() {
+  var ul = document.getElementById('users-list');
+  if (!ul) return;
+  ul.innerHTML = Object.keys(USERS).map(function(u) {
+    return '<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);">' +
+      '<span style="font-size:13px;color:var(--text);">' + u + '</span>' +
+      (u !== 'rdoadmin' ? '<button onclick="removeUser(\'' + u + '\')" style="font-size:11px;padding:4px 10px;background:var(--red-light);color:var(--red);border:none;border-radius:4px;cursor:pointer;">Remove</button>' : '<span style="font-size:11px;color:var(--text3);">Admin</span>') +
+    '</div>';
+  }).join('');
+}
+
+function addUser() {
+  var u = document.getElementById('new-username').value.trim();
+  var p = document.getElementById('new-userpass').value;
+  var msg = document.getElementById('user-msg');
+  if (!u || !p) { msg.style.display='block'; msg.style.color='var(--red)'; msg.textContent='Please enter username and password.'; return; }
+  if (USERS[u]) { msg.style.display='block'; msg.style.color='var(--red)'; msg.textContent='Username already exists.'; return; }
+  USERS[u] = p;
+  document.getElementById('new-username').value = '';
+  document.getElementById('new-userpass').value = '';
+  msg.style.display='block'; msg.style.color='var(--green)'; msg.textContent='User added!';
+  renderUsersList();
+  setTimeout(function() { msg.style.display='none'; }, 3000);
+}
+
+function removeUser(u) {
+  if (!confirm('Remove user: ' + u + '?')) return;
+  delete USERS[u];
+  renderUsersList();
+}
+
+function changePassword() {
+  var oldP = document.getElementById('old-password').value;
+  var newP = document.getElementById('new-password').value;
+  var confP = document.getElementById('confirm-password').value;
+  var msg = document.getElementById('pwd-msg');
+  var currentUser = document.getElementById('user-display').textContent;
+  if (!USERS[currentUser] || USERS[currentUser] !== oldP) { msg.style.display='block'; msg.style.color='var(--red)'; msg.textContent='Current password is incorrect.'; return; }
+  if (newP.length < 6) { msg.style.display='block'; msg.style.color='var(--red)'; msg.textContent='Password must be at least 6 characters.'; return; }
+  if (newP !== confP) { msg.style.display='block'; msg.style.color='var(--red)'; msg.textContent='Passwords do not match.'; return; }
+  USERS[currentUser] = newP;
+  ['old-password','new-password','confirm-password'].forEach(function(id) { document.getElementById(id).value = ''; });
+  msg.style.display='block'; msg.style.color='var(--green)'; msg.textContent='Password updated!';
+  setTimeout(function() { msg.style.display='none'; }, 3000);
+}
+
+function openModal() { document.getElementById('edit-modal').style.display = 'flex'; }
+function closeModal() { document.getElementById('edit-modal').style.display = 'none'; }
+
+function applyEdit() {
+  if (!detectedData) detectedData = {};
+  detectedData.title = document.getElementById('edit-title').value;
+  detectedData.author = document.getElementById('edit-author').value;
+  detectedData.date = document.getElementById('edit-date').value;
+  detectedData.category = document.getElementById('edit-category').value;
+  populatePreview(detectedData);
+  closeModal();
+}
+
+function showStatus(id, type, msg) {
+  var el = document.getElementById(id);
+  if (!el) return;
+  el.className = 'status-msg status-' + type;
+  el.innerHTML = msg;
+  el.style.display = 'block';
+}
+
+function hideStatus(id) {
+  var el = document.getElementById(id);
+  if (el) el.style.display = 'none';
+}
+
+function deleteFile(btn) {
+  var fileId = btn.getAttribute('data-id');
+  var fileName = decodeURIComponent(btn.getAttribute('data-name'));
+  if (!confirm('Are you sure you want to delete "' + fileName + '"?\nThis will permanently delete the file from Google Drive.')) return;
+  if (!driveAccessToken) { alert('Google Drive not connected.'); return; }
+  fetch('https://www.googleapis.com/drive/v3/files/' + fileId, {
+    method: 'DELETE',
+    headers: { 'Authorization': 'Bearer ' + driveAccessToken }
+  }).then(function(res) {
+    if (res.ok || res.status === 204) {
+      currentFolderFiles = currentFolderFiles.filter(function(f) { return f.id !== fileId; });
+      if (folderCounts[currentFolderName] > 0) folderCounts[currentFolderName]--;
+      updateStats();
+      buildFolderGrid();
+      loadFolderFiles(currentFolderName);
+    } else {
+      res.json().then(function(e) {
+        alert('Delete failed: ' + (e.error ? e.error.message : 'Unknown error'));
+      });
+    }
+  }).catch(function(err) {
+    alert('Delete error: ' + err.message);
+  });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  ['drop-zone-dash','drop-zone-up'].forEach(function(id) {
+    var zone = document.getElementById(id);
+    if (!zone) return;
+    zone.addEventListener('dragover', function(e) { e.preventDefault(); zone.classList.add('dragover'); });
+    zone.addEventListener('dragleave', function() { zone.classList.remove('dragover'); });
+    zone.addEventListener('drop', function(e) {
+      e.preventDefault();
+      zone.classList.remove('dragover');
+      var file = e.dataTransfer.files[0];
+      if (file) handleFile(file);
+    });
+  });
+  buildFolderGrid();
+  var savedDark = localStorage.getItem('nemsu_darkmode');
+  if (savedDark === '1') toggleDarkMode();
+});
+
+</script>
+</body>
+</html>
